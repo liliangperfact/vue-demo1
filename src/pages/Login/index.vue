@@ -19,16 +19,16 @@
             </ul>
 
             <div class="content">
-              <form action="##">
+              <form>
                 <div class="input-text clearFix">
                   <i></i>
-                  <input type="text" placeholder="手机号" />
+                  <input type="text" placeholder="手机号" v-model="mobile"/>
                   <span class="error-msg">错误提示信息</span>
                 </div>
 
                 <div class="input-text clearFix">
                   <i class="pwd"></i>
-                  <input type="text" placeholder="请输入密码" />
+                  <input type="text" placeholder="请输入密码" v-model="password"/>
                   <span class="error-msg">错误提示信息</span>
                 </div>
 
@@ -39,7 +39,7 @@
                   </label>
                   <span class="forget">忘记密码？</span>
                 </div>
-                <button class="btn">登&nbsp;&nbsp;录</button>
+                <button class="btn" @click.prevent="login">登&nbsp;&nbsp;录</button>
               </form>
               <div class="call clearFix">
                 <ul>
@@ -56,7 +56,8 @@
                     <img src="images/weixin.png" alt />
                   </li>
                 </ul>
-                <a href="##" class="register">立即注册</a>
+                <router-link to="./register">立即注册</router-link>
+                <!-- <a href="##" class="register">立即注册</a> -->
               </div>
             </div>
           </div>
@@ -86,9 +87,26 @@ export default {
   props: {},
   components: {},
   data() {
-    return {};
+    return {
+      mobile:'',
+      password:''
+    };
   },
-  methods: {}
+  methods: {
+    async login(){
+      let {mobile,password} = this
+      if(mobile&&password){
+        let userInfo = {mobile,password}
+        try {
+          await this.$store.dispatch('userLogin',userInfo)
+          alert('跳转成功')
+          this.$router.push('/home')
+        } catch (error) {
+          alert(error.message)
+        }
+      }
+    }
+  }
 };
 </script>
 <style lang="less"	scoped>

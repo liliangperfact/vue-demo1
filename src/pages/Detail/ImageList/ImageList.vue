@@ -1,8 +1,8 @@
 <template>
-  <div class="swiper-container">
+  <div class="swiper-container" ref="imglist">
     <div class="swiper-wrapper">
-      <div class="swiper-slide">
-        <img src="../images/s1.png">
+      <div class="swiper-slide" v-for="(img,index) in imgList" :key="img.id">
+        <img :src="img.imgUrl" @click="chengeIndex(index)" :class="{active:currentIndex === index}">
       </div>
     </div>
     <div class="swiper-button-next"></div>
@@ -13,8 +13,52 @@
 <script>
 
   import Swiper from 'swiper'
+  import "swiper/css/swiper.min.css";
   export default {
     name: "ImageList",
+    props:['imgList'],
+    data(){
+      return {
+        currentIndex:0
+      }
+    },
+    methods:{
+      chengeIndex(index){
+          this.currentIndex = index//样式需要
+          this.$bus.$emit('changedefaultIndex',index)//gei
+      }
+    },
+    watch: {
+    imgList: {
+      handler() {
+        this.$nextTick(() => {
+          new Swiper(this.$refs.imglist, {
+            //direction: 'vertical', // 垂直切换选项
+            //loop: true, // 循环模式选项
+
+            // 如果需要分页器
+            // pagination: {
+            //   el: ".swiper-pagination"
+            // },
+            slidesPerGroup:5,
+            slidesPerView:5,
+            // 如果需要前进后退按钮
+            navigation: {
+              nextEl: ".swiper-button-next",
+              prevEl: ".swiper-button-prev"
+            }
+
+            // 如果需要滚动条
+            // scrollbar: {
+            //   el: '.swiper-scrollbar',
+            // },
+          });
+        });
+      },
+      immediate: true
+    }
+  }
+   
   }
 </script>
 
@@ -43,10 +87,10 @@
           padding: 1px;
         }
 
-        &:hover {
-          border: 2px solid #f60;
-          padding: 1px;
-        }
+        // &:hover {
+        //   border: 2px solid #f60;
+        //   padding: 1px;
+        // }
       }
     }
 

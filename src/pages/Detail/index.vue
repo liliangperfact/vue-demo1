@@ -17,9 +17,9 @@
         <!-- 左侧放大镜区域 -->
         <div class="previewWrap">
           <!--放大镜效果-->
-          <Zoom />
+          <Zoom :imgList="skuInfo.skuImageList"/>
           <!-- 小图列表 -->
-          <ImageList />
+          <ImageList :imgList="skuInfo.skuImageList"/>
         </div>
         <!-- 右侧选择区域布局 -->
         <div class="InfoWrap">
@@ -66,20 +66,25 @@
               <div class="choosed"></div>
               <dl v-for="(item,index) in spuSaleAttrList" :key="index">
                 <dt class="title">{{item.saleAttrName}}</dt>
-                <dd changepirce="0" class="active" v-for="(attrvalue,index) in item.spuSaleAttrValueList" 
-                :key="attrvalue.id">{{attrvalue.saleAttrValueName}}</dd>
+                <dd changepirce="0" 
+                :class="{active:attrvalue.isChecked === '1'}" 
+                v-for="(attrvalue,index) in item.spuSaleAttrValueList" 
+                :key="attrvalue.id"
+                @click="goodschose(item.spuSaleAttrValueList,index)"
+                >{{attrvalue.saleAttrValueName}}</dd>
                 
               </dl>
             
             </div>
             <div class="cartWrap">
               <div class="controls">
-                <input autocomplete="off" class="itxt">
-                <a href="javascript:" class="plus">+</a>
-                <a href="javascript:" class="mins">-</a>
+                <input autocomplete="off" class="itxt" v-model="skuNum"
+                @change="$event.target.value*1>1? skuNum = $event.target.value*1:skuNum=1">
+                <a href="javascript:" class="plus" @click="skuNum++">+</a>
+                <a href="javascript:" class="mins" @click="skuNum<=1?1:skuNum--">-</a>
               </div>
               <div class="add">
-                <a href="javascript:">加入购物车</a>
+                <a href="javascript:" @click="toSuccess">加入购物车</a>
               </div>
             </div>
           </div>
@@ -336,7 +341,11 @@ import { mapGetters } from 'vuex'
 
   export default {
     name: 'Detail',
-    
+    data(){
+      return{
+        skuNum:1
+      }
+    },
     components: {
       ImageList,
       Zoom
@@ -347,10 +356,26 @@ import { mapGetters } from 'vuex'
     methods:{
       getGoodsDetailInfo(){
         this.$store.dispatch('getGoodsDetailInfo',this.$route.params.goodsId)
+      },
+      goodschose(arrAttrList,index){
+        arrAttrList.forEach(item => {
+          item.isChecked = '0'
+        });
+        arrAttrList[index].isChecked = '1'
+      },
+      async toSuccess(){
+        try {
+           const result = await this.$store.dispatch('addorUpdateShopCart',{skuId:this.skuInfo.id,skuNum:this.skuNum})
+           sessionStorage.setItem('SKUINFO_KEY',JSON.stringify(this.skuInfo))
+           this.$router.push(`/addcartsuccess?skuNum=${this.skuNum}`)
+        } catch (error) {
+          alert(error.message)
+        }
+      
       }
     },
     computed:{
-      ...mapGetters(['categoryView','skuInfo','spuSaleAttrList'])
+      ...mapGetters(['categoryView','skuInfo','spuSaleAttrList','imgList'])
     }
   }
 </script>
